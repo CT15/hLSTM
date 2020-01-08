@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from sklearn.metrics import f1_score, recall_score, precision_score
 
 import utils
 from glove import Glove, create_emb_layer
@@ -89,24 +90,61 @@ def train_and_eval(thread_ids, posts, labels, max_posts=20,
                   bidirectional=True, 
                   embedding = create_emb_layer(glove.weights_matrix), 
                   drop_prob=0.5,
-                  max_output=max_posts)
-    model.to(utils.get_device())
+                  max_output=max_posts,
+                  device=utils.get_device())
 
     labels = train_labels.flatten()
     intervention_ratio = len(labels[labels == 1]) / len(labels)
-    loss = WeightedBCELoss(zero_weight=intervention_ratio, one_weight=1-intervention_ratio)
+    loss_fn = WeightedBCELoss(zero_weight=intervention_ratio, one_weight=1-intervention_ratio)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
+    __train_model(model, train_loader, max_epoch, loss_fn, optimizer)
+    f1, precision, recall = __eval_model(model, test_loader, False)
+
+
+def __train_model(model, data_loader, max_epoch, loss_fn, optimizer):
     model.zero_grad()
     model.train()
 
     for epoch in range(max_epoch):
+        for inputs, labels in data_loader:
+            inputs, labels = inputs.to(utils.get_device()), labels.to(utils.get_device())
 
-        for inputs, labels in train_loader:
-            
+            # This line is so that the buffers will not be freed when trying to backward through the graph
+            h = tuple([each.data for each in h])
 
+            output = model(inputs) # (self.batch_size * self.max_output, 1)
+            loss = loss_fn.loss(output.squeeze(), torch.flatten(labels.float()))
+
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5)
+            optimizer.step()
+
+
+def __eval_model(model, data_loader, temp=True):
+    model.eval()
+
+    preds, truths = [], []
+
+    for inputs, labels in data_loader:
+        h = tuple([each.data for each in h])
+
+        inputs, labels = inputs.to(utils.get_device()), labels.to(utils.get_device())
+
+        output, h = model(inputs, h)
+
+        pred = torch.round(output.squeeze())
+        preds.append(pred.tolist())
+        truths.append(torch.flatten(labels).tolist())
+
+    preds = int(torch.flatten(preds))
+    truths = torch.flatten(truths)
     
-
+    if temp:
+        model.train()
     
+    f1 = f1_score(truths, preds)
+    precision = precision_score(truths, preds)
+    recall = recall_score(truths, preds)
 
-
+    return f1, precision, recall
