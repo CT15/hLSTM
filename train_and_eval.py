@@ -1,6 +1,7 @@
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
+import os
 from sklearn.metrics import f1_score, recall_score, precision_score
 
 import utils
@@ -67,7 +68,7 @@ def train_and_eval(thread_ids, posts, labels, max_posts=20,
     glove.create_custom_embedding([item for sublist in train_texts for item in sublist])
     glove.add_to_embedding(['.', '!', '?'])
 
-    print('Converting data into correct format')
+    print('Padding and packing data into data loader')
     for i, thread in enumerate(train_texts):
         for j, post_text in enumerate(thread):
             train_texts[i][j] = glove.sentence_to_indices(post_text, seq_len=max_words)
@@ -113,27 +114,34 @@ def train_and_eval(thread_ids, posts, labels, max_posts=20,
     loss_fn = WeightedBCELoss(zero_weight=intervention_ratio, one_weight=1-intervention_ratio)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
+    writer = None
     if result_dir is not None:
-        print('Preparing TensorBoard')
         writer = SummaryWriter(f'runs/{result_dir}')
-    else:
-        writer = None
+
+        if not os.path.exists(f'models/{result_dir}'):
+            os.makedirs(f'models/{result_dir}')
 
     if not validate:
         val_loader = None
 
-    print('Training model')
+    print('Start training model')
     __train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader, writer)
 
     print('Evaluating model')
     f1, precision, recall = __eval_model(model, test_loader, False, writer)
 
     print(f'''
-    Test results
+    Test results:
     F1 = {f1}
     Precision = {precision}
     Recall = {recall}
     ''')
+
+    if result_dir is not None:
+        print('Saving final model')
+        torch.save(model.state_dict(), f'models/{result_dir}/final_model.pth')
+
+    print('DONE :)))')
 
 
 def __train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader, summary_writer=None):
@@ -142,6 +150,9 @@ def __train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader
 
     running_loss = 0.0
     for epoch in range(max_epoch):
+        if (epoch + 1) % 20 == 0:
+            print(f'Training model ({epoch + 1} / {max_epoch})')
+
         for i, (inputs, labels) in enumerate(train_loader):
             inputs, labels = inputs.to(utils.get_device()), labels.to(utils.get_device())
 
