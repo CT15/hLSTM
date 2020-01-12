@@ -7,28 +7,29 @@ class Post(object):
         self.label = label
 
     def __len__(self):
-        return len(text.split())
+        return len(self.text.split())
 
 
 class Thread(object):
-    def __init__(self, thread_id, posts=[]):
+    def __init__(self, thread_id, posts=None):
         self.thread_id = thread_id
-        self.posts = posts
+        self.posts = [] if posts is None else posts
     
     def append(self, post):
-        if post.thread_id == self.thread_id:
-            self.posts.append(post.text)
+        if post.thread_id != self.thread_id:
+            raise Exception(f'Expected thread id {self.thread_id}, get {post.thread_id} instead.')
+        self.posts.append(post)
     
     def __len__(self):
         return len(self.posts)
 
 
-def to_2d_array(threads):
-    posts_arr = np.array([])
-    labels_arr = np.array([])
+def to_2d_list(threads):
+    posts = []
+    labels = []
 
     for thread in threads:
-        posts_arr.append(np.array([post.text for post in thread.posts]))
-        labels_arr.append(np.array([post.label for post in thread.posts]))
+        posts.append([post.text for post in thread.posts])
+        labels.append([post.label for post in thread.posts])
     
-    return posts_arr, labels_arr
+    return posts, labels

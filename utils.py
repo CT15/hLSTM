@@ -8,6 +8,11 @@ def get_device():
 
 def to_data_loader(inputs, labels, batch_size, shuffle=False):
     labels = np.array(labels)
+    labels = torch.from_numpy(labels)
+
     inputs = np.array(inputs)
-    data = TensorDataset(torch.from_numpy(inputs).type('torch.FloatTensor'), torch.from_numpy(labels))
+    inputs = torch.from_numpy(inputs).type('torch.FloatTensor')
+
+    data = TensorDataset(inputs, labels)
+    
     return DataLoader(data, shuffle=shuffle, batch_size=batch_size, drop_last=True)

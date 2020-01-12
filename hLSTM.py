@@ -7,6 +7,10 @@ class hLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, batch_size,
                 num_layers, bidirectional, embedding, drop_prob=0.5,
                 max_output=20, device=torch.device('cpu')):
+        super(hLSTM, self).__init__()
+
+        self.device = device
+
         self.embedding = embedding
         self.batch_size = batch_size
         self.max_output = max_output
@@ -29,7 +33,7 @@ class hLSTM(nn.Module):
                              bidirectional=bidirectional)
 
         self.dropout = nn.Dropout(drop_prob)
-        self.fc = nn.Linear(in_features=output_size, out_features=1)
+        self.fc = nn.Linear(in_features=output_size * (2 if bidirectional else 1), out_features=1)
         self.sigmoid = nn.Sigmoid()
 
         self.to(device)
@@ -42,12 +46,14 @@ class hLSTM(nn.Module):
                             f'but found {inputs.shape}.')
         
         # rearrange input => group all first posts together, second posts together, etc.
-        inputs = torch.reshape(input, (self.max_output, self.batch_size, inputs.shape[2]))
-
-        second_layer_input = torch.empty((self.batch_size, self.max_output, self.second_layer_input_size),
-                                         dtype=torch.float, device=self.device, requires_grad=True)
+        inputs = torch.reshape(inputs, (self.max_output, self.batch_size, inputs.shape[2])).long()
+        # inputs.shape == (number of posts, batch size, no of words in a post)
 
         embeds = self.embedding(inputs) # embeds.shape == (self.max_output, self.batch_size, seq length, word embedding dimension)
+
+        second_layer_input = torch.empty((self.batch_size, self.max_output, self.second_layer_input_size),
+                                         dtype=torch.float, device=self.device)
+
         for i in range(self.max_output):
             lstm1_out, hidden = self.lstm1(embeds[i]) # lstm1_out.shape == (self.batch_size, seq length, self.hidden_size)
             second_layer_input[:, i, :] = lstm1_out[:, -1, :]
@@ -59,9 +65,5 @@ class hLSTM(nn.Module):
         out = self.dropout(lstm2_out)
         out = self.fc(out)
         out = self.sigmoid(out)
-
-        out.view(self.batch_size * self.max_output, -1)
-
-        assert out.size() == (self.batch_size * self.max_output, 1)
 
         return out

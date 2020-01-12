@@ -1,1 +1,4 @@
 venv/
+data/
+__pycache__/
+glove.6B/
