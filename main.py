@@ -13,4 +13,5 @@ labels = labels.astype(np.int)
 
 train_and_eval(thread_ids=thread_ids, posts=posts, labels=labels, 
                max_posts=20, max_words=400, frac=[0.8, 0.1, 0.1], seed=0,
-               batch_size=9, embedding='glove', max_epoch=2, verbose=True)
+               batch_size=9, embedding='glove', max_epoch=2,
+               validate=True, result_dir='exp_1')
