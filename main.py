@@ -6,7 +6,7 @@ from train_and_eval import train_and_eval
 data = pd.read_csv('data/result_large.csv', comment='#')
 
 thread_ids = np.array(data.thread_id)
-posts = np.array(posts)
+posts = np.array(data.posts)
 labels = np.array(data.labels)
 
 train_and_eval(thread_ids=thread_ids, posts=posts, labels=labels, 
