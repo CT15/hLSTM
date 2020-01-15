@@ -128,7 +128,7 @@ def train_and_eval(thread_ids, posts, labels, max_posts=20,
     __train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader, writer)
 
     print('Evaluating model')
-    f1, precision, recall = __eval_model(model, test_loader, False, writer)
+    f1, precision, recall = __eval_model(model, test_loader, False)
 
     print(f'''
     Test results:
@@ -172,12 +172,12 @@ def __train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader
                     running_loss = 0.0
                 
                 if val_loader is not None:
-                    f1, _, _ = __eval_model(model, val_loader, BATCH_SIZE, device)
+                    f1, _, _ = __eval_model(model, val_loader)
                     summary_writer.add_scalar('validation f1', f1,
                                               epoch * len(train_loader) + i)
 
 
-def __eval_model(model, data_loader, temp=True, summary_writer=None):
+def __eval_model(model, data_loader, temp=True):
     model.eval()
 
     preds, truths = [], []
