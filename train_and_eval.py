@@ -185,7 +185,7 @@ def __eval_model(model, data_loader, temp=True):
     for inputs, labels in data_loader:
         inputs, labels = inputs.to(utils.get_device()), labels.to(utils.get_device())
 
-        output, h = model(inputs, h)
+        output = model(inputs)
 
         pred = torch.round(output.squeeze())
         preds.append(pred.tolist())
