@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import pickle
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 from hLSTM import hLSTM
 from glove import Glove, create_emb_layer
