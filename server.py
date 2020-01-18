@@ -19,8 +19,8 @@ MAX_WORDS = 400
 
 glove = Glove()
 glove.words = pickle.load(open('./models/exp_5/words.pkl', 'rb'))
-glove.word2idx = {o:i for i, o in enumerate(words)}
-glove.idx2words = {i:o for i, o in enumerate(words)}
+glove.word2idx = {o:i for i, o in enumerate(glove.words)}
+glove.idx2words = {i:o for i, o in enumerate(glove.words)}
 
 POST_PADDING = [glove.word2idx[glove.pad_token]] * MAX_WORDS # index of pad token is 1
 
@@ -70,6 +70,11 @@ def predict():
     response['prediction'] = prediction
     
     return jsonify(response)
+
+
+@app.route('/')
+def check():
+    return 'Server is live :)))'
 
 
 if __name__ == '__main__':

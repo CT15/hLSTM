@@ -1,12 +1,17 @@
 absl-py==0.9.0
 appdirs==1.4.3
 bcolz==1.2.1
+Click==7.0
 cycler==0.10.0
+Flask==1.1.1
 grpcio==1.26.0
 idna==2.8
+itsdangerous==1.1.0
+Jinja2==2.10.3
 joblib==0.14.1
 kiwisolver==1.1.0
 Markdown==3.1.1
+MarkupSafe==1.1.1
 numpy==1.16.4
 pandas==0.25.3
 postia==0.1.0
