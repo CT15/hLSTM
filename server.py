@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import pickle
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from hLSTM import hLSTM
 from glove import Glove, create_emb_layer
@@ -10,6 +11,7 @@ import utils
 from text_processing import process_text
 
 app = Flask(__name__)
+CORS(app)
 
 model = torch.load('./models/exp_5/final_model.pth', map_location=utils.get_device())
 model.device = utils.get_device()
@@ -62,7 +64,7 @@ def predict():
     if request.method != 'POST':
         return jsonify({'message': 'Not POST request'})
 
-    args = request.get_json()
+    args = request.get_json(force=True)
     posts = args['posts']
 
     response = dict()
@@ -75,6 +77,8 @@ def predict():
         prediction = ([-1] * (len(posts) - len(prediction))) + prediction
 
     response['prediction'] = prediction
+    
+    print((response['request_id'], response['prediction']), file=sys.stderr)
     
     return jsonify(response)
 
