@@ -11,7 +11,8 @@ from text_processing import process_text
 
 app = Flask(__name__)
 
-model = torch.load('./models/exp_5/final_model.pth', map_location=torch.device('cpu'))
+model = torch.load('./models/exp_5/final_model.pth', map_location=utils.get_device())
+model.device = utils.get_device()
 model.batch_size = 1
 model.eval()
 
@@ -23,7 +24,7 @@ glove.words = pickle.load(open('./models/exp_5/words.pkl', 'rb'))
 glove.word2idx = {o:i for i, o in enumerate(glove.words)}
 glove.idx2words = {i:o for i, o in enumerate(glove.words)}
 
-POST_PADDING = [glove.word2idx[glove.pad_token]] * MAX_WORDS # index of pad token is 1
+POST_PADDING = [glove.word2idx[glove.pad_token]] * MAX_WORDS
 
 def preprocess(posts):
     if len(posts) > MAX_POSTS:
@@ -53,7 +54,7 @@ def get_prediction(posts):
     print(inputs.size(), file=sys.stderr)
     outputs = model.forward(inputs)
 
-    return output.squeeze().tolist()
+    return outputs.squeeze().tolist()
      
 
 @app.route('/predict', methods=['POST'])
