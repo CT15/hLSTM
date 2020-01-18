@@ -1,4 +1,5 @@
 import torch
+import sys
 import numpy as np
 import pickle
 from flask import Flask, jsonify, request
@@ -46,16 +47,21 @@ def preprocess(posts):
 
 def get_prediction(posts):
     inputs = preprocess(posts)
+    inputs = np.array(inputs)
+    inputs = torch.from_numpy(inputs).type('torch.FloatTensor')
+    inputs = torch.reshape(inputs, (model.batch_size, MAX_POSTS, -1))
+    print(inputs.size(), file=sys.stderr)
     outputs = model.forward(inputs)
+
     return output.squeeze().tolist()
      
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if request.method != 'POST':
-        return
+        return jsonify({'message': 'Not POST request'})
 
-    args = request.args
+    args = request.get_json()
     posts = args['posts']
 
     response = dict()
