@@ -13,7 +13,7 @@ from text_processing import process_text
 app = Flask(__name__)
 CORS(app)
 
-model = torch.load('./models/exp_5/final_model.pth', map_location=utils.get_device())
+model = torch.load('./models/exp_6/final_model.pth', map_location=utils.get_device())
 model.device = utils.get_device()
 model.batch_size = 1
 model.eval()
@@ -22,7 +22,7 @@ MAX_POSTS = 20
 MAX_WORDS = 400
 
 glove = Glove()
-glove.words = pickle.load(open('./models/exp_5/words.pkl', 'rb'))
+glove.words = pickle.load(open('./models/exp_6/words.pkl', 'rb'))
 glove.word2idx = {o:i for i, o in enumerate(glove.words)}
 glove.idx2words = {i:o for i, o in enumerate(glove.words)}
 
