@@ -132,10 +132,10 @@ def train_and_eval_crf(thread_ids, posts, labels, max_posts=20,
 
             running_loss += loss.item()
             if i % 1000 == 999: # every 100 mini-batches
-                if summary_writer is not None:
-                    summary_writer.add_scalar('training loss', 
-                                              running_loss / 1000,
-                                              epoch * len(train_loader) + i)
+                if writer is not None:
+                    writer.add_scalar('training loss', 
+                                      running_loss / 1000,
+                                      epoch * len(train_loader) + i)
                     running_loss = 0.0
                 
                 if val_loader is not None:
@@ -149,8 +149,8 @@ def train_and_eval_crf(thread_ids, posts, labels, max_posts=20,
 
 
                     f1, _, _ = eval_model(model, val_loader)
-                    summary_writer.add_scalar('validation f1', f1,
-                                              epoch * len(train_loader) + i)
+                    writer.add_scalar('validation f1', f1,
+                                      epoch * len(train_loader) + i)
 
     print('Evaluating model')
     f1, precision, recall = eval_model(model, test_loader, False)
@@ -175,7 +175,7 @@ def eval_model(model, data_loader, temp=True):
     preds, truths = [], []
 
     for inputs, labels, masks in data_loader:
-        inputs, labels, masks = inputs.to(utils.get_device()), labels.to(utils.get_device()), masks.to(util.get_device())
+        inputs, labels, masks = inputs.to(utils.get_device()), labels.to(utils.get_device()), masks.to(utils.get_device())
 
         scores, seqs = model(inputs, masks)
 
