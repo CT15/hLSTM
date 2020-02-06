@@ -6,7 +6,7 @@ import utils
 class hLSTM(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, batch_size,
                 num_layers, bidirectional, embedding, drop_prob=0.5,
-                max_output=20, device=torch.device('cpu')):
+                max_output=20, device=torch.device('cpu'), out_features=1):
         super(hLSTM, self).__init__()
 
         self.device = device
@@ -33,7 +33,7 @@ class hLSTM(nn.Module):
                              bidirectional=bidirectional)
 
         self.dropout = nn.Dropout(drop_prob)
-        self.fc = nn.Linear(in_features=output_size * (2 if bidirectional else 1), out_features=1)
+        self.fc = nn.Linear(in_features=output_size * (2 if bidirectional else 1), out_features=out_features)
         self.sigmoid = nn.Sigmoid()
 
         self.to(device)

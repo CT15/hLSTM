@@ -122,7 +122,7 @@ def train_and_eval_crf(thread_ids, posts, labels, max_posts=20,
             print(f'Training model ({epoch + 1} / {max_epoch})')
 
         for i, (inputs, labels, masks) in enumerate(train_loader):
-            inputs, labels = inputs.to(utils.get_device()), labels.to(utils.get_device())
+            inputs, labels, masks = inputs.to(utils.get_device()), labels.to(utils.get_device()), masks.to(utils.get_device())
 
             loss = model.loss(inputs, labels, masks)
 

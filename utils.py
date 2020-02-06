@@ -15,7 +15,7 @@ def to_data_loader(batch_size, inputs, labels, masks=None, shuffle=False):
     if masks is None:
         data = TensorDataset(inputs, labels)
     else:
-        masks = torch.from_numpy(np.array(masks))
+        masks = torch.from_numpy(np.array(masks)).type('torch.ByteTensor')
         data = TensorDataset(inputs, labels, masks)
     
     return DataLoader(data, shuffle=shuffle, batch_size=batch_size, drop_last=True)
