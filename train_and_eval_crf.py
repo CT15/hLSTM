@@ -139,15 +139,6 @@ def train_and_eval_crf(thread_ids, posts, labels, max_posts=20,
                     running_loss = 0.0
                 
                 if val_loader is not None:
-                    print('Predictions after training:')
-
-                    with torch.no_grad():
-                        scores, seqs = model(x_sent, mask=mask)
-                        for score, seq in zip(scores, seqs):
-                            str_seq = " ".join(ids_to_tags(seq, ix_to_tag))
-                            print('%.2f: %s' % (score.item(), str_seq))
-
-
                     f1, _, _ = eval_model(model, val_loader)
                     writer.add_scalar('validation f1', f1,
                                       epoch * len(train_loader) + i)
@@ -177,10 +168,10 @@ def eval_model(model, data_loader, temp=True):
     for inputs, labels, masks in data_loader:
         inputs, labels, masks = inputs.to(utils.get_device()), labels.to(utils.get_device()), masks.to(utils.get_device())
 
-        scores, seqs = model(inputs, masks)
+        seqs = model(inputs, masks)
 
-        pred = torch.round(seqs.squeeze())
-        preds.append(pred.tolist())
+        pred = [item for sublist in seqs for item in sublist]
+        preds.append(pred)
         truths.append(torch.flatten(labels).tolist())
 
     preds = [int(pred) for predlist in preds for pred in predlist]

@@ -27,8 +27,9 @@ class hLSTM_CRF(nn.Module):
 
     def forward(self, inputs, mask=None):
         emissions = self.hlstm(inputs)
-        score, path = self.crf.decode(emissions, mask=mask)
-        return score, path
+        emissions = torch.reshape(emissions, (self.batch_size, self.max_output, self.num_tags))
+        path = self.crf.decode(emissions, mask=mask)
+        return path
 
 
     def loss(self, inputs, labels, mask=None):
