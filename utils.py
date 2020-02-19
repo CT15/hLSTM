@@ -55,7 +55,7 @@ def filter_and_shuffle_data(thread_ids, posts, labels, max_words, max_posts, see
         if len(thread) <= max_posts:
             continue
         
-        to_split = threads_obj
+        to_split = threads_obj[index]
         posts = thread.posts
         indices_to_remove.append(index)
 
