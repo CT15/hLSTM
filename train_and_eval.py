@@ -32,6 +32,13 @@ def train_and_eval(thread_ids, posts, labels, max_posts=20,
     
     train_texts, train_labels, test_texts, test_labels, val_texts, val_labels = utils.filter_and_shuffle_data(thread_ids, posts, labels, max_words, max_posts, seed, frac)
 
+    print(f'''----------
+    Data Split Result:
+    Train data = {len(train_texts)}
+    Test data = {len(test_texts)}
+    Val data = {len(val_texts)}
+    ----------''')
+
     # from here on is glove specific implementation (may need to extract to a function)
     print('Init embedding')
     glove = Glove()
