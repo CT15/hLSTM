@@ -120,8 +120,7 @@ def train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader, 
 
     running_loss = 0.0
     for epoch in range(max_epoch):
-        if (epoch + 1) % 20 == 0:
-            print(f'Training model ({epoch + 1} / {max_epoch})')
+        print(f'Heartbeat ~ epoch = ({epoch + 1} / {max_epoch})')
 
         for i, (inputs, labels) in enumerate(train_loader):
             inputs, labels = inputs.to(utils.get_device()), labels.to(utils.get_device())
@@ -134,7 +133,7 @@ def train_model(model, train_loader, max_epoch, loss_fn, optimizer, val_loader, 
             optimizer.step()
 
             running_loss += loss.item()
-            if i % 1000 == 999: # every 100 mini-batches
+            if i % 2 == 0: # every 2 mini-batches (adjust this depending on batch_size)
                 if summary_writer is not None:
                     summary_writer.add_scalar('training loss', 
                                               running_loss / 1000,
