@@ -50,12 +50,14 @@ def filter_and_shuffle_data(thread_ids, posts, labels, max_words, max_posts, see
     # ids_to_remove = set([post.thread_id for post in posts_to_remove])
     # threads_obj = [thread for thread in threads_obj if len(thread) <= max_posts and thread.thread_id not in ids_to_remove]
 
+    indices_to_remove = list()
     for index, thread in enumerate(threads_obj):
         if len(thread) <= max_posts:
             continue
         
-        to_split = threads_obj.pop(index)
+        to_split = threads_obj
         posts = thread.posts
+        indices_to_remove.append(index)
 
         # should still exit
         while(len(posts) > 0):
@@ -66,6 +68,9 @@ def filter_and_shuffle_data(thread_ids, posts, labels, max_words, max_posts, see
                 to_append = posts.copy()
                 del posts[-len(posts)]
             threads_obj.append(Thread(to_split.thread_id, posts=to_append))
+
+    for index in sorted(indices_to_remove, reverse=True):
+        del threads_obj[index]
 
     print('Separating threads into train, test, val')
     np.random.seed(seed)
