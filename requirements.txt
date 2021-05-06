@@ -4,7 +4,7 @@ bcolz==1.2.1
 Click==7.0
 cycler==0.10.0
 Flask==1.1.1
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 grpcio==1.26.0
 idna==2.8
 itsdangerous==1.1.0
