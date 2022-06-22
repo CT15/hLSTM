@@ -13,7 +13,7 @@ joblib==0.14.1
 kiwisolver==1.1.0
 Markdown==3.1.1
 MarkupSafe==1.1.1
-numpy==1.16.4
+numpy==1.22.0
 pandas==0.25.3
 postia==0.1.0
 protobuf==3.11.2
